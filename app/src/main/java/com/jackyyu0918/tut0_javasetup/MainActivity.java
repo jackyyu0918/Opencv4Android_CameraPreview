@@ -8,6 +8,12 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Rect2d;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.tracking.Tracker;
 import org.opencv.tracking.TrackerKCF;
 
@@ -29,6 +35,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private CameraBridgeViewBase mOpenCvCameraView;
     private boolean              mIsJavaCamera = true;
     private MenuItem             mItemSwitchCamera = null;
+
+    //My code
+    private TrackerKCF firstTracker;
+    private Rect2d roi;
+    boolean isInitTracker = false;
+    private byte buff[];
+    private Mat mRgba;
+    private Mat mGray;
 
     /*
     static{
@@ -96,8 +110,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
 
-        TrackerKCF firstTracker;
+
+        //implementation
         firstTracker = TrackerKCF.create();
+
     }
 
     public void onDestroy() {
@@ -107,13 +123,37 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     public void onCameraViewStarted(int width, int height) {
+        mGray = new Mat();
+        mRgba = new Mat();
     }
 
     public void onCameraViewStopped() {
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        System.out.println("inputFrame.size: " + inputFrame.rgba().size());
-        return inputFrame.rgba();
+        //System.out.println("inputFrame.size: " + inputFrame.rgba().size());
+
+        /*
+        if(isInitTracker == false){
+            roi = new Rect2d(120,160,240,320);
+            System.out.println("Tracker init result: " + firstTracker.init(inputFrame.gray(),roi));
+            isInitTracker = true;
+        }
+        //System.out.println("Tracker update result: " + firstTracker.update(inputFrame.gray(),roi));
+        firstTracker.update(inputFrame.gray(),roi);
+
+         */
+        mRgba = inputFrame.rgba();
+        mGray = inputFrame.gray();
+
+
+        //buff = new byte[(int) (inputFrame.gray().total() * inputFrame.gray().channels())];
+
+        System.out.println("Matrix details: " + inputFrame.gray());
+        System.out.println("Matrix value: " + inputFrame.gray().get(100, 100, buff));
+
+        //MatOfRect 123;
+        Imgproc.rectangle(mRgba, new Point(120,160), new Point(120+240 , 160+320), new Scalar(0, 255, 0, 255), 0);
+        return mGray;
     }
 }
